@@ -1,0 +1,74 @@
+// ============================================================
+// Prisma Schema — aiwrite-base
+// ORM:       Prisma 6.x
+// Database:  PostgreSQL 16
+// Naming:    Tables and columns use snake_case via @@map / @map
+// UUIDs:     All PKs use gen_random_uuid() (PostgreSQL native)
+// Timestamps: timestamptz (timezone-aware) on all DateTime fields
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Enums
+// ============================================================
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ============================================================
+// Model: User
+// Purpose: Application users. Owns zero or more files.
+// ============================================================
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  files File[]
+
+  @@index([email], map: "users_email_idx")
+  @@map("users")
+}
+
+// ============================================================
+// Model: File
+// Purpose: Metadata for files stored in MinIO (S3-compatible).
+//          The actual binary is stored in MinIO; this row holds
+//          the lookup key (storageKey) and descriptive metadata.
+// Delete:  Cascade — removing a User removes all their Files.
+// ============================================================
+
+model File {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  filename   String
+  storageKey String   @unique @map("storage_key")
+  mimeType   String   @map("mime_type")
+  size       Int
+  bucketName String   @map("bucket_name")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  // files_user_id_idx: supports efficient lookup of all files belonging to a user
+  @@index([userId], map: "files_user_id_idx")
+  @@map("files")
+}

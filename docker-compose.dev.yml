@@ -1,0 +1,80 @@
+##
+## docker-compose.dev.yml — Local development infrastructure only.
+##
+## Runs postgres and minio in Docker so you can work with:
+##   npm run dev      (Next.js hot-reload on the host)
+##   npm run db:migrate
+##   npm run db:studio
+##
+## The app service is intentionally absent — the host process is the app.
+##
+## Usage:
+##   docker compose -f docker-compose.dev.yml up -d     # start infra
+##   docker compose -f docker-compose.dev.yml down      # stop infra
+##   docker compose -f docker-compose.dev.yml logs -f   # follow logs
+##
+## Shortcut scripts in package.json:
+##   npm run docker:up | docker:down | docker:logs
+##
+
+services:
+
+  # ─────────────────────────────────────────────
+  # PostgreSQL 16 (development instance)
+  # ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: aiwrite_postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aiwrite}
+      POSTGRES_USER: ${POSTGRES_USER:-aiwrite}
+      # Dev default is intentionally weak — never use in production.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aiwrite_dev_password}
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      # Exposed to the host so `npm run dev` and Prisma CLI can reach it.
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aiwrite} -d ${POSTGRES_DB:-aiwrite}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ─────────────────────────────────────────────
+  # MinIO (S3-compatible object storage — development instance)
+  # ─────────────────────────────────────────────
+  minio:
+    image: minio/minio:RELEASE.2025-01-20T14-49-07Z
+    container_name: aiwrite_minio_dev
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    volumes:
+      - minio_data_dev:/data
+    ports:
+      # API — host app connects to localhost:9000 (matches .env.example MINIO_ENDPOINT=localhost).
+      - "${MINIO_PORT:-9000}:9000"
+      # Console — MinIO web UI available at http://localhost:9001
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 10s
+
+# ─────────────────────────────────────────────
+# Dev-specific named volumes.
+# Separate from production volumes to avoid data collisions.
+# ─────────────────────────────────────────────
+volumes:
+  postgres_data_dev:
+    name: aiwrite_postgres_data_dev
+  minio_data_dev:
+    name: aiwrite_minio_data_dev

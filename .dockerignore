@@ -1,0 +1,54 @@
+# ============================================================
+# .dockerignore — controls what is sent to the Docker build context.
+#
+# A lean build context means faster `docker build` times and prevents
+# accidental inclusion of secrets, large artifacts, or dev files.
+# ============================================================
+
+# ── Node / build artifacts ─────────────────────────────────
+node_modules
+.next
+out
+
+# ── Version control ────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ── Environment files ──────────────────────────────────────
+# Secrets must NEVER be baked into the image.
+# Runtime values are injected via docker compose `environment`.
+.env
+.env.*
+!.env.example
+
+# ── Development tooling ────────────────────────────────────
+.eslintrc*
+.eslintignore
+.prettierrc*
+.editorconfig
+tsconfig.tsbuildinfo
+
+# ── Logs and debug output ──────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── OS metadata ────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Documentation ──────────────────────────────────────────
+*.md
+LICENSE
+
+# ── IDE / editor configs ───────────────────────────────────
+.vscode
+.idea
+*.swp
+*.swo
+
+# ── Test output ────────────────────────────────────────────
+coverage
+.nyc_output
