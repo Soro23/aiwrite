@@ -22,12 +22,15 @@ interface SidebarProps {
   user: SidebarUser;
 }
 
-const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Home", exact: true, adminOnly: false },
-  { href: "/dashboard/api-keys", icon: Key, label: "API Keys", exact: false, adminOnly: false },
-  { href: "/dashboard/storage", icon: HardDrive, label: "Storage", exact: false, adminOnly: false },
-  { href: "/dashboard/database", icon: Database, label: "Database", exact: false, adminOnly: false },
-  { href: "/dashboard/users", icon: Users2, label: "Users", exact: false, adminOnly: true },
+const mainNavItems = [
+  { href: "/dashboard", icon: LayoutDashboard, label: "Home", exact: true },
+  { href: "/dashboard/api-keys", icon: Key, label: "API Keys", exact: false },
+  { href: "/dashboard/storage", icon: HardDrive, label: "Storage", exact: false },
+  { href: "/dashboard/database", icon: Database, label: "Database", exact: false },
+];
+
+const adminNavItems = [
+  { href: "/dashboard/users", icon: Users2, label: "Users", exact: false },
 ];
 
 export function Sidebar({ user }: SidebarProps) {
@@ -56,14 +59,12 @@ export function Sidebar({ user }: SidebarProps) {
       </div>
 
       {/* Main nav */}
-      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        {navItems
-          .filter((item) => !item.adminOnly || isAdmin)
-          .map((item) => {
+      <nav className="flex-1 px-3 py-3 overflow-y-auto flex flex-col">
+        <div className="space-y-0.5 flex-1">
+          {mainNavItems.map((item) => {
             const isActive = item.exact
               ? pathname === item.href
               : pathname.startsWith(item.href);
-
             return (
               <Link
                 key={item.href}
@@ -80,6 +81,33 @@ export function Sidebar({ user }: SidebarProps) {
               </Link>
             );
           })}
+        </div>
+
+        {/* Admin section — pinned to bottom of nav, above user strip */}
+        {isAdmin && (
+          <div className="space-y-0.5 pt-2 border-t border-[#2e2e2e] mt-2">
+            {adminNavItems.map((item) => {
+              const isActive = item.exact
+                ? pathname === item.href
+                : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
+                    isActive
+                      ? "bg-[#2a2a2a] text-[#ededed]"
+                      : "text-[#a0a0a0] hover:bg-[#242424] hover:text-[#ededed]"
+                  )}
+                >
+                  <item.icon size={15} strokeWidth={1.8} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </nav>
 
       {/* User section */}

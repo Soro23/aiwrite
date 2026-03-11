@@ -17,7 +17,8 @@ export default async function DashboardLayout({
   }
 
   const payload = verifyToken(token);
-  if (!payload) {
+  if (!payload || !payload.role) {
+    // Stale or malformed token — force re-login
     redirect("/login");
   }
 
