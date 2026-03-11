@@ -19,14 +19,25 @@ import { z } from "zod";
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export const ALLOWED_MIME_TYPES = [
+  // Images
   "image/jpeg",
   "image/png",
   "image/gif",
   "image/webp",
+  "image/svg+xml",
+  // PDF
   "application/pdf",
+  // Word documents
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  // Excel spreadsheets
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  // PowerPoint
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  // Plain text
   "text/plain",
-  "text/markdown",
-  "application/json",
 ] as const;
 
 /**
