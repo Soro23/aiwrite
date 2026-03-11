@@ -42,10 +42,11 @@ function getExpiresIn(): string {
  * Both `sub` and `role` are available after verification.
  */
 export function signToken(userId: string, role: string): string {
-  return jwt.sign({ sub: userId, role }, getSecret(), {
+  const options: jwt.SignOptions = {
     expiresIn: getExpiresIn(),
     algorithm: "HS256",
-  });
+  };
+  return jwt.sign({ sub: userId, role }, getSecret(), options);
 }
 
 /**
