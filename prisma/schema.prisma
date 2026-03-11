@@ -40,7 +40,8 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  files File[]
+  files     File[]
+  databases Database[]
 
   @@index([email], map: "users_email_idx")
   @@map("users")
@@ -71,4 +72,26 @@ model File {
   // files_user_id_idx: supports efficient lookup of all files belonging to a user
   @@index([userId], map: "files_user_id_idx")
   @@map("files")
+}
+
+// ============================================================
+// Model: Database
+// Purpose: User-owned PostgreSQL schemas used as isolated databases.
+//          Each record maps to a real schema in the same PostgreSQL
+//          instance. schemaName is derived from the record ID.
+// ============================================================
+
+model Database {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  name       String
+  schemaName String   @unique @map("schema_name")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name], map: "databases_user_id_name_key")
+  @@index([userId], map: "databases_user_id_idx")
+  @@map("databases")
 }

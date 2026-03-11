@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Users2,
   HardDrive,
+  Database,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Home", exact: true },
   { href: "/dashboard/users", icon: Users2, label: "Users", exact: false },
   { href: "/dashboard/storage", icon: HardDrive, label: "Storage", exact: false },
+  { href: "/dashboard/database", icon: Database, label: "Database", exact: false },
 ];
 
 const bottomNavItems = [
