@@ -7,31 +7,29 @@ import type { RegisterInput, LoginInput } from "@/validators/auth.validator";
 /**
  * Auth service — business logic for registration, login, and user retrieval.
  *
- * All functions return SafeUser objects that intentionally omit the
- * passwordHash field. The token is returned alongside the user so that
- * route handlers can set it as an httpOnly cookie.
+ * Registration flow:
+ *   - If no users exist yet, the registrant becomes ADMIN + ACTIVE (bootstrap).
+ *   - Otherwise the account is created as USER + PENDING and no token is issued.
+ *     An admin must approve via the Users panel before the user can log in.
  *
- * Error convention:
- *   ServiceError is thrown for domain-level errors (wrong credentials,
- *   duplicate email, etc.). Callers should catch and map to HTTP responses.
- *   Unexpected errors (database failures, etc.) are left to propagate so
- *   the global handler can log them and return 500.
+ * Login flow:
+ *   - Verifies password then checks status. PENDING → 403, SUSPENDED → 403.
+ *
+ * All functions return SafeUser objects (passwordHash excluded).
  */
 
-// Re-export so callers that import ServiceError from this module
-// continue to work without changes.
 export { ServiceError } from "@/lib/errors";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-/** User shape exposed outside the service layer — never includes passwordHash. */
 export interface SafeUser {
   id: string;
   name: string;
   email: string;
   role: string;
+  status: string;
   createdAt: Date;
 }
 
@@ -40,8 +38,15 @@ interface AuthResult {
   token: string;
 }
 
+export interface RegisterResult {
+  user: SafeUser;
+  /** Present only when the first user bootstraps as admin (auto-approved). */
+  token?: string;
+  pending: boolean;
+}
+
 // ---------------------------------------------------------------------------
-// Prisma select shape — reused across queries for consistency
+// Prisma select shape
 // ---------------------------------------------------------------------------
 
 const safeUserSelect = {
@@ -49,6 +54,7 @@ const safeUserSelect = {
   name: true,
   email: true,
   role: true,
+  status: true,
   createdAt: true,
 } as const;
 
@@ -59,15 +65,15 @@ const safeUserSelect = {
 /**
  * Register a new user.
  *
- * Steps:
- *   1. Verify the email is not already taken (409 if it is).
- *   2. Hash the password with bcrypt (cost 12).
- *   3. Persist the new user via Prisma.
- *   4. Sign a JWT containing the user ID and role.
+ * Bootstrap case (zero users in DB):
+ *   Creates the account as ADMIN + ACTIVE and returns a signed JWT for
+ *   immediate login — this is the initial admin setup.
  *
- * Returns the safe user object and the signed JWT.
+ * Normal case:
+ *   Creates the account as USER + PENDING. No token is issued; the user
+ *   must wait for an admin to approve the account before logging in.
  */
-export async function registerUser(input: RegisterInput): Promise<AuthResult> {
+export async function registerUser(input: RegisterInput): Promise<RegisterResult> {
   const existing = await prisma.user.findUnique({
     where: { email: input.email },
     select: { id: true },
@@ -79,32 +85,46 @@ export async function registerUser(input: RegisterInput): Promise<AuthResult> {
 
   const passwordHash = await hashPassword(input.password);
 
+  // Bootstrap: if no users exist, make the first one admin + active.
+  const userCount = await prisma.user.count();
+  const isFirstUser = userCount === 0;
+
   const user = await prisma.user.create({
     data: {
       name: input.name,
       email: input.email,
       passwordHash,
+      role: isFirstUser ? "ADMIN" : "USER",
+      status: isFirstUser ? "ACTIVE" : "PENDING",
     },
     select: safeUserSelect,
   });
 
-  const token = signToken(user.id, user.role);
+  const safeUser: SafeUser = {
+    ...user,
+    role: String(user.role),
+    status: String(user.status),
+  };
 
-  return { user: { ...user, role: String(user.role) }, token };
+  if (isFirstUser) {
+    const token = signToken(user.id, user.role);
+    return { user: safeUser, token, pending: false };
+  }
+
+  return { user: safeUser, pending: true };
 }
 
 /**
- * Authenticate an existing user by email and password.
+ * Authenticate an existing user.
  *
  * Returns a generic 401 for both "email not found" and "wrong password"
- * to prevent user enumeration via timing or error message differences.
+ * to prevent user enumeration. Returns 403 for PENDING or SUSPENDED accounts.
  */
 export async function loginUser(input: LoginInput): Promise<AuthResult> {
   const user = await prisma.user.findUnique({
     where: { email: input.email },
   });
 
-  // Generic error message — do not reveal whether the email exists.
   if (!user) {
     throw new ServiceError("Invalid email or password", 401);
   }
@@ -114,6 +134,14 @@ export async function loginUser(input: LoginInput): Promise<AuthResult> {
     throw new ServiceError("Invalid email or password", 401);
   }
 
+  if (user.status === "PENDING") {
+    throw new ServiceError("Your account is pending admin approval.", 403);
+  }
+
+  if (user.status === "SUSPENDED") {
+    throw new ServiceError("Your account has been suspended. Contact an admin.", 403);
+  }
+
   const token = signToken(user.id, user.role);
 
   const safeUser: SafeUser = {
@@ -121,6 +149,7 @@ export async function loginUser(input: LoginInput): Promise<AuthResult> {
     name: user.name,
     email: user.email,
     role: String(user.role),
+    status: String(user.status),
     createdAt: user.createdAt,
   };
 
@@ -129,10 +158,6 @@ export async function loginUser(input: LoginInput): Promise<AuthResult> {
 
 /**
  * Retrieve a user by ID.
- *
- * Returns null when no matching user exists so that callers can decide
- * the appropriate response (404, redirect, etc.) rather than catching
- * a thrown error.
  */
 export async function getUserById(id: string): Promise<SafeUser | null> {
   const user = await prisma.user.findUnique({
@@ -140,9 +165,7 @@ export async function getUserById(id: string): Promise<SafeUser | null> {
     select: safeUserSelect,
   });
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
-  return { ...user, role: String(user.role) };
+  return { ...user, role: String(user.role), status: String(user.status) };
 }

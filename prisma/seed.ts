@@ -8,7 +8,7 @@
  *       (or: npx tsx prisma/seed.ts)
  */
 
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient, Role, UserStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -27,15 +27,16 @@ async function main(): Promise<void> {
   const admin = await prisma.user.upsert({
     where: { email: "admin@example.com" },
     update: {
-      // Keep the hash current in case the canonical dev password changed.
       passwordHash: adminPasswordHash,
       role: Role.ADMIN,
+      status: UserStatus.ACTIVE,
     },
     create: {
       name: "Admin",
       email: "admin@example.com",
       passwordHash: adminPasswordHash,
       role: Role.ADMIN,
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -51,12 +52,14 @@ async function main(): Promise<void> {
     update: {
       passwordHash: userPasswordHash,
       role: Role.USER,
+      status: UserStatus.ACTIVE,
     },
     create: {
       name: "User",
       email: "user@example.com",
       passwordHash: userPasswordHash,
       role: Role.USER,
+      status: UserStatus.ACTIVE,
     },
   });
 

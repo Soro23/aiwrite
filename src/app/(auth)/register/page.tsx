@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,13 +33,47 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push("/dashboard");
-      router.refresh();
+      if (data.data.pending) {
+        setPending(true);
+      } else {
+        // Bootstrap admin — auto-login
+        router.push("/dashboard");
+        router.refresh();
+      }
     } catch {
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (pending) {
+    return (
+      <div className="w-full max-w-sm">
+        <div className="flex items-center gap-2 mb-8 justify-center">
+          <div className="w-8 h-8 bg-brand rounded-md flex items-center justify-center">
+            <span className="text-sm font-bold text-black">A</span>
+          </div>
+          <span className="text-lg font-semibold text-[#ededed]">aiwrite</span>
+        </div>
+
+        <div className="bg-[#1c1c1c] border border-[#2e2e2e] rounded-lg p-8 text-center">
+          <div className="flex justify-center mb-4">
+            <CheckCircle2 size={40} className="text-brand" strokeWidth={1.5} />
+          </div>
+          <h1 className="text-lg font-semibold text-[#ededed] mb-2">Account submitted</h1>
+          <p className="text-sm text-[#a0a0a0]">
+            Your account request has been received. You can log in once an admin approves it.
+          </p>
+          <Link
+            href="/login"
+            className="mt-6 inline-block text-sm text-brand hover:underline"
+          >
+            Back to sign in
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -53,7 +89,7 @@ export default function RegisterPage() {
       {/* Card */}
       <div className="bg-[#1c1c1c] border border-[#2e2e2e] rounded-lg p-8">
         <h1 className="text-xl font-semibold text-[#ededed] mb-1">Create an account</h1>
-        <p className="text-sm text-[#a0a0a0] mb-6">Get started with aiwrite</p>
+        <p className="text-sm text-[#a0a0a0] mb-6">Request access to aiwrite</p>
 
         {error && (
           <div className="mb-4 px-3 py-2.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
@@ -104,7 +140,7 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full py-2 px-4 bg-brand hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed text-black font-medium text-sm rounded-md transition-colors"
           >
-            {loading ? "Creating account..." : "Create account"}
+            {loading ? "Sending request..." : "Request access"}
           </button>
         </form>
       </div>

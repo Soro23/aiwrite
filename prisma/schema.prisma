@@ -25,23 +25,31 @@ enum Role {
   ADMIN
 }
 
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
 // ============================================================
 // Model: User
 // Purpose: Application users. Owns zero or more files.
 // ============================================================
 
 model User {
-  id           String   @id @default(uuid()) @db.Uuid
+  id           String     @id @default(uuid()) @db.Uuid
   name         String
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  role         Role       @default(USER)
+  status       UserStatus @default(PENDING) @map("status")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
   files     File[]
   databases Database[]
+  apiKeys   ApiKey[]
 
   @@index([email], map: "users_email_idx")
   @@map("users")
@@ -94,4 +102,28 @@ model Database {
   @@unique([userId, name], map: "databases_user_id_name_key")
   @@index([userId], map: "databases_user_id_idx")
   @@map("databases")
+}
+
+// ============================================================
+// Model: ApiKey
+// Purpose: Personal API tokens for user applications.
+//          The full key is shown once at creation; only the
+//          SHA-256 hash is stored. keyPrefix is the first 12
+//          characters of the key (e.g. "awr_a1b2c3d4")
+//          used for display/identification.
+// ============================================================
+
+model ApiKey {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  name       String
+  keyHash    String    @unique @map("key_hash")
+  keyPrefix  String    @map("key_prefix")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  lastUsedAt DateTime? @map("last_used_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "api_keys_user_id_idx")
+  @@map("api_keys")
 }

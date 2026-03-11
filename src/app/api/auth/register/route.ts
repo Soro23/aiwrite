@@ -9,25 +9,18 @@ import { rateLimit, getClientIp, AUTH_RATE_LIMIT } from "@/lib/rate-limit";
 /**
  * POST /api/auth/register
  *
- * Creates a new user account, signs a JWT, and sets it as an
- * httpOnly cookie. The token is never returned in the response body.
+ * Bootstrap case (first user): creates ADMIN account, signs JWT, sets cookie.
+ * Normal case: creates PENDING account, no cookie — admin must approve first.
  *
  * Request body:
  *   { name: string; email: string; password: string }
  *
  * Success (201):
- *   { success: true; data: { user: SafeUser }; error: null }
- *   Set-Cookie: auth-token=<jwt>; HttpOnly; ...
- *
- * Errors:
- *   400  — invalid JSON body
- *   422  — schema validation failure (lists all errors)
- *   409  — email already registered
- *   500  — unexpected server error
+ *   { success: true; data: { user, pending: boolean }; error: null }
+ *   Set-Cookie: token=<jwt>  (only for bootstrap admin)
  */
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: 5 requests per minute per IP for auth endpoints
     const ip = getClientIp(request.headers);
     const rl = rateLimit(`register:${ip}`, AUTH_RATE_LIMIT.limit, AUTH_RATE_LIMIT.windowMs);
     if (!rl.allowed) {
@@ -43,16 +36,18 @@ export async function POST(request: NextRequest) {
 
     const parsed = RegisterSchema.safeParse(body);
     if (!parsed.success) {
-      const message = parsed.error.errors
-        .map((e) => e.message)
-        .join(", ");
+      const message = parsed.error.errors.map((e) => e.message).join(", ");
       return apiError(message, 422);
     }
 
     const result = await registerUser(parsed.data);
 
-    const response = success({ user: result.user }, 201);
-    response.headers.set("Set-Cookie", buildAuthCookie(result.token));
+    const response = success({ user: result.user, pending: result.pending }, 201);
+
+    if (result.token) {
+      response.headers.set("Set-Cookie", buildAuthCookie(result.token));
+    }
+
     return response;
   } catch (err) {
     if (err instanceof ServiceError) {

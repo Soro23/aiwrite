@@ -7,6 +7,7 @@ import {
   Users2,
   HardDrive,
   Database,
+  Key,
   LogOut,
 } from "lucide-react";
 import { cn, getInitials } from "@/lib/utils";
@@ -22,15 +23,17 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Home", exact: true },
-  { href: "/dashboard/users", icon: Users2, label: "Users", exact: false },
-  { href: "/dashboard/storage", icon: HardDrive, label: "Storage", exact: false },
-  { href: "/dashboard/database", icon: Database, label: "Database", exact: false },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Home", exact: true, adminOnly: false },
+  { href: "/dashboard/api-keys", icon: Key, label: "API Keys", exact: false, adminOnly: false },
+  { href: "/dashboard/storage", icon: HardDrive, label: "Storage", exact: false, adminOnly: false },
+  { href: "/dashboard/database", icon: Database, label: "Database", exact: false, adminOnly: false },
+  { href: "/dashboard/users", icon: Users2, label: "Users", exact: false, adminOnly: true },
 ];
 
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const isAdmin = user.role === "ADMIN";
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -54,27 +57,29 @@ export function Sidebar({ user }: SidebarProps) {
 
       {/* Main nav */}
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive = item.exact
-            ? pathname === item.href
-            : pathname.startsWith(item.href);
+        {navItems
+          .filter((item) => !item.adminOnly || isAdmin)
+          .map((item) => {
+            const isActive = item.exact
+              ? pathname === item.href
+              : pathname.startsWith(item.href);
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
-                isActive
-                  ? "bg-[#2a2a2a] text-[#ededed]"
-                  : "text-[#a0a0a0] hover:bg-[#242424] hover:text-[#ededed]"
-              )}
-            >
-              <item.icon size={15} strokeWidth={1.8} />
-              {item.label}
-            </Link>
-          );
-        })}
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
+                  isActive
+                    ? "bg-[#2a2a2a] text-[#ededed]"
+                    : "text-[#a0a0a0] hover:bg-[#242424] hover:text-[#ededed]"
+                )}
+              >
+                <item.icon size={15} strokeWidth={1.8} />
+                {item.label}
+              </Link>
+            );
+          })}
       </nav>
 
       {/* User section */}
@@ -83,9 +88,7 @@ export function Sidebar({ user }: SidebarProps) {
           href="/dashboard/settings"
           className={cn(
             "flex items-center gap-2.5 px-3 py-2 rounded-md transition-colors group",
-            isSettingsActive
-              ? "bg-[#2a2a2a]"
-              : "hover:bg-[#242424]"
+            isSettingsActive ? "bg-[#2a2a2a]" : "hover:bg-[#242424]"
           )}
         >
           <div className="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center shrink-0">
