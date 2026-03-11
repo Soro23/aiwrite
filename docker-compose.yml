@@ -68,6 +68,21 @@ services:
       - aiwrite_network
 
   # ─────────────────────────────────────────────
+  # Cloudflare Tunnel
+  # ─────────────────────────────────────────────
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: aiwrite_cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN is required}
+    depends_on:
+      - app
+    networks:
+      - aiwrite_network
+
+  # ─────────────────────────────────────────────
   # Next.js application (standalone build)
   # ─────────────────────────────────────────────
   app:
