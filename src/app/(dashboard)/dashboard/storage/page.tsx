@@ -125,7 +125,7 @@ function FilePreview({ file, onClose }: { file: FileItem; onClose: () => void })
         {/* URL */}
         {file.url && (
           <div>
-            <p className="text-[11px] text-[#666] mb-1.5">Direct URL <span className="text-[#444]">(expires in 1h)</span></p>
+            <p className="text-[11px] text-[#666] mb-1.5">Direct URL</p>
             <div className="bg-[#222] border border-[#2e2e2e] rounded-md p-2 flex items-start gap-1">
               <p className="text-[11px] text-[#a0a0a0] font-mono break-all flex-1 leading-relaxed">
                 {file.url}

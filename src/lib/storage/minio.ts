@@ -1,4 +1,5 @@
 import { Client as MinioClient } from "minio";
+import { Readable } from "stream";
 
 /**
  * MinIO Storage Client
@@ -141,6 +142,21 @@ export async function getPresignedUrl(
   const bucket = getConfig().bucket;
 
   return client.presignedGetObject(bucket, key, expirySeconds);
+}
+
+/**
+ * Get a readable stream for a file in MinIO.
+ * Used to proxy file content through the Next.js app to the browser.
+ *
+ * Parameters:
+ *   key: Object key in bucket
+ *
+ * Returns a Node.js Readable stream.
+ */
+export async function getFileStream(key: string): Promise<Readable> {
+  const client = getClient();
+  const bucket = getConfig().bucket;
+  return client.getObject(bucket, key);
 }
 
 /**

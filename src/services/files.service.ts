@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db/prisma";
-import { uploadFile, deleteFile, getPresignedUrl, ensureBucket } from "@/lib/storage/minio";
+import { uploadFile, deleteFile, ensureBucket } from "@/lib/storage/minio";
 import { ServiceError } from "@/lib/errors";
 
 /**
@@ -83,8 +83,9 @@ export async function upload(
     },
   });
 
-  // Generate presigned URL for immediate download
-  const url = await getPresignedUrl(file.storageKey);
+  // Build proxied URL — served by Next.js, accessible externally
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const url = `${appUrl}/api/files/${file.id}`;
 
   return {
     id: file.id,
@@ -131,17 +132,16 @@ export async function listFiles(
     prisma.file.count({ where: { userId } }),
   ]);
 
-  // Generate presigned URLs for each file
-  const filesWithUrls: FileRecord[] = await Promise.all(
-    files.map(async (file) => ({
-      id: file.id,
-      filename: file.filename,
-      mimeType: file.mimeType,
-      size: file.size,
-      createdAt: file.createdAt,
-      url: await getPresignedUrl(file.storageKey),
-    }))
-  );
+  // Build proxied URLs for each file
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const filesWithUrls: FileRecord[] = files.map((file) => ({
+    id: file.id,
+    filename: file.filename,
+    mimeType: file.mimeType,
+    size: file.size,
+    createdAt: file.createdAt,
+    url: `${appUrl}/api/files/${file.id}`,
+  }));
 
   return { files: filesWithUrls, total };
 }
