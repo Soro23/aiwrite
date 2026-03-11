@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [pending, setPending] = useState(false);
@@ -17,6 +20,12 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (password !== confirm) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -124,20 +133,60 @@ export default function RegisterPage() {
 
           <div>
             <label className="block text-sm text-[#a0a0a0] mb-1.5">Password</label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-3 py-2 bg-[#222] border border-[#2e2e2e] rounded-md text-sm text-[#ededed] placeholder-[#555] focus:outline-none focus:border-brand transition-colors"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-3 py-2 pr-9 bg-[#222] border border-[#2e2e2e] rounded-md text-sm text-[#ededed] placeholder-[#555] focus:outline-none focus:border-brand transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555] hover:text-[#a0a0a0] transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-[#a0a0a0] mb-1.5">Confirm password</label>
+            <div className="relative">
+              <input
+                type={showConfirm ? "text" : "password"}
+                required
+                minLength={8}
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="••••••••"
+                className={`w-full px-3 py-2 pr-9 bg-[#222] border rounded-md text-sm text-[#ededed] placeholder-[#555] focus:outline-none transition-colors ${
+                  confirm && confirm !== password
+                    ? "border-red-500/60 focus:border-red-500"
+                    : "border-[#2e2e2e] focus:border-brand"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm((v) => !v)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555] hover:text-[#a0a0a0] transition-colors"
+                tabIndex={-1}
+              >
+                {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+            {confirm && confirm !== password && (
+              <p className="mt-1 text-xs text-red-400">Passwords do not match</p>
+            )}
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (!!confirm && confirm !== password)}
             className="w-full py-2 px-4 bg-brand hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed text-black font-medium text-sm rounded-md transition-colors"
           >
             {loading ? "Sending request..." : "Request access"}
