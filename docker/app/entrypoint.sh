@@ -53,7 +53,7 @@ log "Environment validation passed."
 # startup — it is idempotent (already-applied migrations are skipped).
 # It does NOT create or reset the database, only applies SQL migration files.
 log "Running database migrations (prisma migrate deploy)..."
-npx prisma migrate deploy
+node ./node_modules/prisma/build/index.js migrate deploy
 log "Migrations complete."
 
 # ─────────────────────────────────────────────

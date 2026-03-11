@@ -91,6 +91,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public           ./public
 COPY --from=builder --chown=nextjs:nodejs /app/prisma                  ./prisma
 COPY --from=deps    --chown=nextjs:nodejs /app/node_modules/.prisma    ./node_modules/.prisma
 COPY --from=deps    --chown=nextjs:nodejs /app/node_modules/@prisma    ./node_modules/@prisma
+COPY --from=deps    --chown=nextjs:nodejs /app/node_modules/prisma     ./node_modules/prisma
 
 # ── Entrypoint script ──────────────────────────────────────────
 # Runs Prisma migrations then starts the Next.js standalone server.
