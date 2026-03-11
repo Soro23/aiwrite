@@ -31,8 +31,18 @@ function getSecret(): string {
   return secret;
 }
 
-function getExpiresIn(): string {
-  return process.env.JWT_EXPIRES_IN ?? "7d";
+/** Parse env string like "7d", "24h", "60m" to seconds. Defaults to 7 days. */
+function getExpiresInSeconds(): number {
+  const val = process.env.JWT_EXPIRES_IN ?? "7d";
+  const match = val.match(/^(\d+)(d|h|m|s)?$/);
+  if (!match) return 7 * 24 * 60 * 60;
+  const n = parseInt(match[1], 10);
+  switch (match[2]) {
+    case "d": return n * 86400;
+    case "h": return n * 3600;
+    case "m": return n * 60;
+    default:  return n;
+  }
 }
 
 /**
@@ -43,7 +53,7 @@ function getExpiresIn(): string {
  */
 export function signToken(userId: string, role: string): string {
   const options: jwt.SignOptions = {
-    expiresIn: getExpiresIn(),
+    expiresIn: getExpiresInSeconds(),
     algorithm: "HS256",
   };
   return jwt.sign({ sub: userId, role }, getSecret(), options);
