@@ -89,9 +89,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public           ./public
 # The entrypoint runs `prisma migrate deploy` before starting the server,
 # so we need the Prisma schema, migration history, and generated client.
 COPY --from=builder --chown=nextjs:nodejs /app/prisma                  ./prisma
-COPY --from=deps    --chown=nextjs:nodejs /app/node_modules/.prisma    ./node_modules/.prisma
-COPY --from=deps    --chown=nextjs:nodejs /app/node_modules/@prisma    ./node_modules/@prisma
-COPY --from=deps    --chown=nextjs:nodejs /app/node_modules/prisma     ./node_modules/prisma
+COPY --from=deps    --chown=nextjs:nodejs /app/node_modules            ./node_modules
 
 # ── Entrypoint script ──────────────────────────────────────────
 # Runs Prisma migrations then starts the Next.js standalone server.
