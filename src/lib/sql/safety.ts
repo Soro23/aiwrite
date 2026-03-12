@@ -47,26 +47,26 @@ export interface SafetyResult {
   reason?: string;
 }
 
-export function validateSqlSafety(sql: string): SafetyResult {
-  const stripped = stripComments(sql).trim();
-
-  if (!stripped) {
-    return { safe: false, reason: "SQL statement is empty" };
-  }
-
-  // Reject multi-statement input (multiple semicolons with content after them)
-  const statements = stripped
+/** Split SQL input into individual statements, stripping comments first. */
+export function splitStatements(sql: string): string[] {
+  return stripComments(sql)
     .split(";")
     .map((s) => s.trim())
     .filter(Boolean);
+}
 
-  if (statements.length > 1) {
-    return { safe: false, reason: "Only one SQL statement is allowed per execution" };
+export function validateSqlSafety(sql: string): SafetyResult {
+  const statements = splitStatements(sql);
+
+  if (statements.length === 0) {
+    return { safe: false, reason: "SQL statement is empty" };
   }
 
-  for (const pattern of BLOCKED_PATTERNS) {
-    if (pattern.test(stripped)) {
-      return { safe: false, reason: "This SQL operation is not permitted" };
+  for (const stmt of statements) {
+    for (const pattern of BLOCKED_PATTERNS) {
+      if (pattern.test(stmt)) {
+        return { safe: false, reason: "This SQL operation is not permitted" };
+      }
     }
   }
 

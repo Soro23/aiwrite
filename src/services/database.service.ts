@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { ServiceError } from "@/lib/errors";
-import { validateSqlSafety, isReadOnlyQuery } from "@/lib/sql/safety";
+import { validateSqlSafety, splitStatements, isReadOnlyQuery } from "@/lib/sql/safety";
 
 const MAX_DATABASES_PER_USER = 10;
 
@@ -17,8 +17,8 @@ export interface DatabaseRecord {
 }
 
 export type SqlResult =
-  | { type: "rows"; columns: string[]; rows: Record<string, unknown>[] }
-  | { type: "affected"; count: number };
+  | { type: "rows"; columns: string[]; rows: Record<string, unknown>[]; statement: string }
+  | { type: "affected"; count: number; statement: string };
 
 export interface TableInfo {
   name: string;
@@ -104,40 +104,43 @@ export async function executeSql(
   userId: string,
   databaseId: string,
   sql: string
-): Promise<SqlResult> {
+): Promise<SqlResult[]> {
   const db = await getOwnedDatabase(userId, databaseId);
 
   const safety = validateSqlSafety(sql);
   if (!safety.safe) throw new ServiceError(safety.reason ?? "SQL not permitted", 400);
 
-  const readOnly = isReadOnlyQuery(sql);
+  const statements = splitStatements(sql);
 
   try {
-    if (readOnly) {
-      const rows = await prisma.$transaction(async (tx) => {
-        await tx.$executeRawUnsafe(
-          `SET LOCAL search_path TO "${db.schemaName}", public`
-        );
-        await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '30s'`);
-        return tx.$queryRawUnsafe<Record<string, unknown>[]>(sql);
-      });
+    const results = await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        `SET LOCAL search_path TO "${db.schemaName}", public`
+      );
+      await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '30s'`);
 
-      const limited = rows.slice(0, 1000);
-      const columns = limited.length > 0 ? Object.keys(limited[0]) : [];
-      return { type: "rows", columns, rows: limited };
-    } else {
-      await prisma.$transaction(async (tx) => {
-        await tx.$executeRawUnsafe(
-          `SET LOCAL search_path TO "${db.schemaName}", public`
-        );
-        await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '30s'`);
-        await tx.$executeRawUnsafe(sql);
-      });
-      return { type: "affected", count: 0 };
-    }
+      const stmtResults: SqlResult[] = [];
+
+      for (const stmt of statements) {
+        const label = stmt.length > 80 ? stmt.slice(0, 80) + "…" : stmt;
+
+        if (isReadOnlyQuery(stmt)) {
+          const rows = await tx.$queryRawUnsafe<Record<string, unknown>[]>(stmt);
+          const limited = rows.slice(0, 1000);
+          const columns = limited.length > 0 ? Object.keys(limited[0]) : [];
+          stmtResults.push({ type: "rows", columns, rows: limited, statement: label });
+        } else {
+          const count = await tx.$executeRawUnsafe(stmt);
+          stmtResults.push({ type: "affected", count, statement: label });
+        }
+      }
+
+      return stmtResults;
+    });
+
+    return results;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Query execution failed";
-    // Strip internal file paths from PG errors
     const clean = msg.replace(/\s+at \/[^\s]+/g, "");
     throw new ServiceError(clean, 400);
   }

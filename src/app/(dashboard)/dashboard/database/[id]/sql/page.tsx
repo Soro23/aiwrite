@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 import { Play, ChevronDown } from "lucide-react";
 
 type SqlResult =
-  | { type: "rows"; columns: string[]; rows: Record<string, unknown>[] }
-  | { type: "affected"; count: number };
+  | { type: "rows"; columns: string[]; rows: Record<string, unknown>[]; statement: string }
+  | { type: "affected"; count: number; statement: string };
 
 const EXAMPLE_QUERIES = [
   { label: "Create table", sql: "CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  name TEXT NOT NULL,\n  email TEXT UNIQUE NOT NULL,\n  created_at TIMESTAMPTZ DEFAULT NOW()\n);" },
@@ -18,7 +18,7 @@ const EXAMPLE_QUERIES = [
 export default function SqlEditorPage() {
   const params = useParams<{ id: string }>();
   const [sql, setSql] = useState("-- Write your SQL here\nSELECT 1;");
-  const [result, setResult] = useState<SqlResult | null>(null);
+  const [results, setResults] = useState<SqlResult[] | null>(null);
   const [error, setError] = useState("");
   const [running, setRunning] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
@@ -28,7 +28,7 @@ export default function SqlEditorPage() {
     if (!sql.trim()) return;
     setRunning(true);
     setError("");
-    setResult(null);
+    setResults(null);
 
     try {
       const res = await fetch(`/api/databases/${params.id}/query`, {
@@ -38,7 +38,7 @@ export default function SqlEditorPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setResult(data.data);
+        setResults(data.data);
       } else {
         setError(data.error ?? "Query failed");
       }
@@ -118,66 +118,76 @@ export default function SqlEditorPage() {
             </div>
           )}
 
-          {result && result.type === "affected" && (
-            <div className="p-4 text-sm text-[#a0a0a0]">
-              Query executed successfully.
-            </div>
-          )}
+          {results && results.map((result, idx) => (
+            <div key={idx} className="p-4 border-b border-[#2e2e2e] last:border-b-0">
+              {results.length > 1 && (
+                <p className="text-[11px] text-[#555] font-mono mb-2 truncate">
+                  {idx + 1}. {result.statement}
+                </p>
+              )}
 
-          {result && result.type === "rows" && (
-            <div className="p-4">
-              <p className="text-xs text-[#666] mb-3">
-                {result.rows.length} row{result.rows.length !== 1 ? "s" : ""}
-                {result.rows.length === 1000 && " (limit reached)"}
-              </p>
-              {result.rows.length === 0 ? (
-                <p className="text-xs text-[#666]">No results</p>
-              ) : (
-                <div className="overflow-auto">
-                  <table className="text-xs border-collapse min-w-full">
-                    <thead>
-                      <tr className="bg-[#1c1c1c]">
-                        {result.columns.map((col) => (
-                          <th
-                            key={col}
-                            className="px-3 py-2 text-left text-[#a0a0a0] font-medium border border-[#2e2e2e] whitespace-nowrap"
-                          >
-                            {col}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {result.rows.map((row, i) => (
-                        <tr key={i} className="hover:bg-[#1a1a1a] transition-colors">
-                          {result.columns.map((col) => {
-                            const val = row[col];
-                            const display =
-                              val === null ? (
-                                <span className="text-[#555] italic">NULL</span>
-                              ) : (
-                                String(val)
-                              );
-                            return (
-                              <td
+              {result.type === "affected" && (
+                <p className="text-xs text-[#a0a0a0]">
+                  {result.count > 0 ? `${result.count} row${result.count !== 1 ? "s" : ""} affected` : "Query executed successfully."}
+                </p>
+              )}
+
+              {result.type === "rows" && (
+                <>
+                  <p className="text-xs text-[#666] mb-3">
+                    {result.rows.length} row{result.rows.length !== 1 ? "s" : ""}
+                    {result.rows.length === 1000 && " (limit reached)"}
+                  </p>
+                  {result.rows.length === 0 ? (
+                    <p className="text-xs text-[#666]">No results</p>
+                  ) : (
+                    <div className="overflow-auto">
+                      <table className="text-xs border-collapse min-w-full">
+                        <thead>
+                          <tr className="bg-[#1c1c1c]">
+                            {result.columns.map((col) => (
+                              <th
                                 key={col}
-                                className="px-3 py-1.5 border border-[#2a2a2a] text-[#ededed] max-w-[300px] truncate"
-                                title={val !== null ? String(val) : "NULL"}
+                                className="px-3 py-2 text-left text-[#a0a0a0] font-medium border border-[#2e2e2e] whitespace-nowrap"
                               >
-                                {display}
-                              </td>
-                            );
-                          })}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                                {col}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {result.rows.map((row, i) => (
+                            <tr key={i} className="hover:bg-[#1a1a1a] transition-colors">
+                              {result.columns.map((col) => {
+                                const val = row[col];
+                                const display =
+                                  val === null ? (
+                                    <span className="text-[#555] italic">NULL</span>
+                                  ) : (
+                                    String(val)
+                                  );
+                                return (
+                                  <td
+                                    key={col}
+                                    className="px-3 py-1.5 border border-[#2a2a2a] text-[#ededed] max-w-[300px] truncate"
+                                    title={val !== null ? String(val) : "NULL"}
+                                  >
+                                    {display}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
               )}
             </div>
-          )}
+          ))}
 
-          {!result && !error && !running && (
+          {!results && !error && !running && (
             <div className="p-4 text-xs text-[#555]">
               Run a query to see results here
             </div>
