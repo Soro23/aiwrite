@@ -41,7 +41,7 @@ export function toSchemaName(databaseId: string): string {
   return `db_${databaseId.replace(/-/g, "").slice(0, 16)}`;
 }
 
-async function getOwnedDatabase(userId: string, id: string): Promise<DatabaseRecord> {
+export async function getOwnedDatabase(userId: string, id: string): Promise<DatabaseRecord> {
   const db = await prisma.database.findFirst({
     where: { id, userId },
   });

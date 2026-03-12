@@ -1,0 +1,27 @@
+import { NextRequest } from "next/server";
+import { ZodError } from "zod";
+import { getAuthFromRequest } from "@/lib/auth/middleware";
+import { dropFunction } from "@/services/ddl.service";
+import { DropFunctionSchema } from "@/validators/ddl.validator";
+import { ServiceError } from "@/lib/errors";
+import { success, apiError } from "@/lib/api/response";
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; name: string }> }
+) {
+  const auth = getAuthFromRequest(request);
+  if (!auth) return apiError("Unauthorized", 401);
+
+  try {
+    const { id, name } = await params;
+    const body = await request.json();
+    const { argTypes } = DropFunctionSchema.parse(body);
+    await dropFunction(auth.sub, id, name, argTypes);
+    return success(null);
+  } catch (err) {
+    if (err instanceof ZodError) return apiError(err.errors[0].message, 400);
+    if (err instanceof ServiceError) return apiError(err.message, err.statusCode);
+    return apiError("Internal server error", 500);
+  }
+}
