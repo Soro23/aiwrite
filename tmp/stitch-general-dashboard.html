@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Supabase Dashboard Clone</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3fcf8e",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#131f1a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #294237;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="flex h-screen overflow-hidden">
+<aside class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-primary/10 bg-background-light dark:bg-background-dark flex flex-col justify-between p-4">
+<div class="flex flex-col gap-6">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-primary/20 p-2 rounded-lg">
+<div class="size-6 bg-primary rounded-sm flex items-center justify-center text-background-dark">
+<span class="material-symbols-outlined text-sm font-bold">bolt</span>
+</div>
+</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 dark:text-white text-sm font-semibold leading-none">Project Alpha</h1>
+<p class="text-slate-500 dark:text-primary/60 text-xs mt-1">Development</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined text-[20px]">home</span>
+<span class="text-sm font-medium">Home</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+<span class="text-sm font-medium">Auth</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">database</span>
+<span class="text-sm font-medium">Database</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">folder_open</span>
+<span class="text-sm font-medium">Storage</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">key</span>
+<span class="text-sm font-medium">API Keys</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-primary/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-4">
+<div class="bg-primary/5 rounded-xl p-4 border border-primary/10">
+<p class="text-xs font-semibold text-primary uppercase tracking-wider">Free Plan</p>
+<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">82% of storage used</p>
+<div class="w-full bg-primary/20 h-1.5 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-[82%]"></div>
+</div>
+<button class="w-full mt-3 py-2 bg-primary text-background-dark text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors">
+                        Upgrade Plan
+                    </button>
+</div>
+<div class="flex items-center gap-3 px-2">
+<div class="size-8 rounded-full bg-primary/20 border border-primary/30" data-alt="User profile avatar gradient" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCEREWWFLzyy206og9vW_tdwZDhEkH5aetsyaziGC86o_E9BLm71uzir7gG0sXyaAQQ0-zRPIuxZNJoeyL3BCX5be6jOyixxJAOVwM2PUxgtIHzPwOzj-H0iIv0UqaM8Z5K61MMwvu6Hw_sAawMYfMoJ1tSTDWsOPim0zDhz3LHVyWkVWStp4-e291Nvb50o0ItWUNMl2WtY5KLYQEJDDbmcvtTxfL7Sq92dE6fUXFZqN3d_lk9sPYtBeWxg84LBO_1cyM5K93-29sa'); background-size: cover;"></div>
+<div class="flex flex-col">
+<p class="text-xs font-medium text-slate-900 dark:text-slate-100">Alex Rivera</p>
+<p class="text-[10px] text-slate-500">Owner</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col overflow-hidden">
+<header class="h-16 border-b border-slate-200 dark:border-primary/10 flex items-center justify-between px-8 bg-background-light/50 dark:bg-background-dark/50 backdrop-blur-md">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full bg-slate-100 dark:bg-primary/5 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary text-slate-900 dark:text-slate-100" placeholder="Search resources, logs, docs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-6 w-[1px] bg-slate-200 dark:bg-primary/10 mx-2"></div>
+<button class="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+                        New Project
+                    </button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-8">
+<section class="mb-8">
+<div class="flex flex-wrap justify-between items-end gap-4">
+<div class="space-y-1">
+<nav class="flex text-[10px] font-bold uppercase tracking-widest text-primary/60 gap-2 mb-2">
+<span>Projects</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-primary">Project Alpha</span>
+</nav>
+<h2 class="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Project Overview</h2>
+<div class="flex items-center gap-2">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<p class="text-slate-500 dark:text-primary/60 text-sm font-medium">Status: Active &amp; Healthy</p>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-slate-200 dark:bg-primary/10 text-slate-700 dark:text-white text-sm font-semibold rounded-lg border border-slate-300 dark:border-primary/20 hover:bg-slate-300 dark:hover:bg-primary/20 transition-all">
+                                Documentation
+                            </button>
+<button class="px-4 py-2 bg-primary text-background-dark text-sm font-bold rounded-lg hover:shadow-lg hover:shadow-primary/20 transition-all">
+                                Project Settings
+                            </button>
+</div>
+</div>
+</section>
+<section class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+<div class="lg:col-span-3 bg-white dark:bg-primary/5 rounded-xl border border-slate-200 dark:border-primary/10 p-6">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium">API Request Volume</h3>
+<p class="text-3xl font-bold text-slate-900 dark:text-white">1,284,502</p>
+</div>
+<div class="flex items-center gap-2 text-primary bg-primary/10 px-2 py-1 rounded text-xs font-bold">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+                                +12.5%
+                            </div>
+</div>
+<div class="h-[200px] w-full">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 500 150">
+<defs>
+<lineargradient id="gradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#3fcf8e;stop-opacity:0.2"></stop>
+<stop offset="100%" style="stop-color:#3fcf8e;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,120 Q50,110 80,130 T150,90 T220,100 T300,40 T380,60 T450,20 T500,50 L500,150 L0,150 Z" fill="url(#gradient)"></path>
+<path d="M0,120 Q50,110 80,130 T150,90 T220,100 T300,40 T380,60 T450,20 T500,50" fill="none" stroke="#3fcf8e" stroke-width="3"></path>
+</svg>
+</div>
+<div class="flex justify-between mt-4">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">00:00</span>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">08:00</span>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">16:00</span>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">23:59</span>
+</div>
+</div>
+<div class="space-y-6">
+<div class="bg-white dark:bg-primary/5 rounded-xl border border-slate-200 dark:border-primary/10 p-6">
+<h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">User Growth</h3>
+<div class="flex items-baseline gap-2">
+<p class="text-2xl font-bold text-slate-900 dark:text-white">8,245</p>
+<span class="text-primary text-xs font-bold">+5.2%</span>
+</div>
+</div>
+<div class="bg-white dark:bg-primary/5 rounded-xl border border-slate-200 dark:border-primary/10 p-6">
+<h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Database Size</h3>
+<div class="flex items-baseline gap-2">
+<p class="text-2xl font-bold text-slate-900 dark:text-white">4.2 GB</p>
+<span class="text-primary text-xs font-bold">+0.8%</span>
+</div>
+</div>
+<div class="bg-white dark:bg-primary/5 rounded-xl border border-slate-200 dark:border-primary/10 p-6">
+<h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Storage Used</h3>
+<div class="flex items-baseline gap-2">
+<p class="text-2xl font-bold text-slate-900 dark:text-white">12.8 GB</p>
+<span class="text-primary text-xs font-bold">+2.4%</span>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<section class="xl:col-span-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Recent Activity Logs</h3>
+<div class="bg-white dark:bg-primary/5 rounded-xl border border-slate-200 dark:border-primary/10 overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead>
+<tr class="border-b border-slate-200 dark:border-primary/10 bg-slate-50 dark:bg-primary/5">
+<th class="px-6 py-3 font-semibold text-slate-500 dark:text-slate-400">Service</th>
+<th class="px-6 py-3 font-semibold text-slate-500 dark:text-slate-400">Event</th>
+<th class="px-6 py-3 font-semibold text-slate-500 dark:text-slate-400">Timestamp</th>
+<th class="px-6 py-3 font-semibold text-slate-500 dark:text-slate-400 text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 dark:divide-primary/10">
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">database</span>
+<span class="font-medium">Postgres</span>
+</td>
+<td class="px-6 py-4">New table created: <code class="bg-slate-100 dark:bg-primary/10 px-1 rounded text-primary text-xs">analytics_v2</code></td>
+<td class="px-6 py-4 text-slate-500">2 mins ago</td>
+<td class="px-6 py-4 text-right">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold">SUCCESS</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">verified_user</span>
+<span class="font-medium">Auth</span>
+</td>
+<td class="px-6 py-4">User registered: <span class="text-slate-400 italic">m.scott@dundermifflin.com</span></td>
+<td class="px-6 py-4 text-slate-500">14 mins ago</td>
+<td class="px-6 py-4 text-right">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold">SUCCESS</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-500 text-sm">folder_open</span>
+<span class="font-medium">Storage</span>
+</td>
+<td class="px-6 py-4">Object deleted: <code class="text-xs">/avatars/user_99.png</code></td>
+<td class="px-6 py-4 text-slate-500">45 mins ago</td>
+<td class="px-6 py-4 text-right">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold">SUCCESS</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-primary/5 transition-colors">
+<td class="px-6 py-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">key</span>
+<span class="font-medium">API</span>
+</td>
+<td class="px-6 py-4">API Key rotated: <span class="text-slate-400 italic">pk_prod_***</span></td>
+<td class="px-6 py-4 text-slate-500">2 hours ago</td>
+<td class="px-6 py-4 text-right">
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold">SUCCESS</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 border-t border-slate-200 dark:border-primary/10 flex justify-center">
+<button class="text-xs font-bold text-slate-500 hover:text-primary transition-colors flex items-center gap-1">
+                                    View all logs
+                                    <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<section>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Quick Actions</h3>
+<div class="flex flex-col gap-3">
+<button class="w-full group flex items-center justify-between p-4 bg-white dark:bg-primary/5 rounded-xl border border-slate-200 dark:border-primary/10 hover:border-primary/50 transition-all text-left">
+<div class="flex items-center gap-4">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined">add_box</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Create Table</p>
+<p class="text-[11px] text-slate-500">Define your schema</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-primary/20 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+<button class="w-full group flex items-center justify-between p-4 bg-white dark:bg-primary/5 rounded-xl border border-slate-200 dark:border-primary/10 hover:border-primary/50 transition-all text-left">
+<div class="flex items-center gap-4">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Invite User</p>
+<p class="text-[11px] text-slate-500">Add team members</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-primary/20 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+<button class="w-full group flex items-center justify-between p-4 bg-white dark:bg-primary/5 rounded-xl border border-slate-200 dark:border-primary/10 hover:border-primary/50 transition-all text-left">
+<div class="flex items-center gap-4">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined">create_new_folder</span>
+</div>
+<div>
+<p class="text-sm font-semibold">New Bucket</p>
+<p class="text-[11px] text-slate-500">Setup asset storage</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 dark:text-primary/20 group-hover:text-primary transition-colors">chevron_right</span>
+</button>
+<div class="mt-4 p-4 bg-primary/5 rounded-xl border border-dashed border-primary/30 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary mb-2">rocket_launch</span>
+<p class="text-xs font-semibold mb-1">Explore our marketplace</p>
+<p class="text-[10px] text-slate-500 mb-3">Install extensions to speed up development</p>
+<button class="text-[10px] font-bold text-primary hover:underline">View Marketplace</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

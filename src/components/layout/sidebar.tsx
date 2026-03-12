@@ -47,19 +47,26 @@ export function Sidebar({ user }: SidebarProps) {
   const isSettingsActive = pathname.startsWith("/dashboard/settings");
 
   return (
-    <aside className="w-64 h-screen bg-[#1c1c1c] border-r border-[#2e2e2e] flex flex-col shrink-0">
+    <aside className="w-64 h-screen bg-background-light dark:bg-background-dark border-r border-slate-200/70 dark:border-primary/10 flex flex-col shrink-0 p-4">
       {/* Brand */}
-      <div className="px-4 py-[14px] border-b border-[#2e2e2e]">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-brand rounded flex items-center justify-center">
-            <span className="text-xs font-bold text-black">A</span>
+      <div className="flex items-center gap-3 px-2">
+        <div className="bg-primary/20 p-2 rounded-lg">
+          <div className="w-6 h-6 bg-primary rounded-sm flex items-center justify-center text-background-dark">
+            <span className="text-xs font-bold">A</span>
           </div>
-          <span className="text-sm font-semibold text-[#ededed]">aiwrite</span>
+        </div>
+        <div className="flex flex-col">
+          <h1 className="text-slate-900 dark:text-white text-sm font-semibold leading-none">
+            aiwrite
+          </h1>
+          <p className="text-slate-500 dark:text-primary/60 text-xs mt-1">
+            Dashboard
+          </p>
         </div>
       </div>
 
       {/* Main nav */}
-      <nav className="flex-1 px-3 py-3 overflow-y-auto flex flex-col">
+      <nav className="flex-1 py-6 overflow-y-auto flex flex-col">
         <div className="space-y-0.5 flex-1">
           {mainNavItems.map((item) => {
             const isActive = item.exact
@@ -70,13 +77,13 @@ export function Sidebar({ user }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-[#2a2a2a] text-[#ededed]"
-                    : "text-[#a0a0a0] hover:bg-[#242424] hover:text-[#ededed]"
+                    ? "bg-primary/10 text-primary"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-primary/5 hover:text-slate-900 dark:hover:text-slate-100"
                 )}
               >
-                <item.icon size={15} strokeWidth={1.8} />
+                <item.icon size={18} strokeWidth={1.8} />
                 {item.label}
               </Link>
             );
@@ -85,7 +92,7 @@ export function Sidebar({ user }: SidebarProps) {
 
         {/* Admin section — pinned to bottom of nav, above user strip */}
         {isAdmin && (
-          <div className="space-y-0.5 pt-2 border-t border-[#2e2e2e] mt-2">
+          <div className="space-y-0.5 pt-4 border-t border-slate-200/70 dark:border-primary/10 mt-4">
             {adminNavItems.map((item) => {
               const isActive = item.exact
                 ? pathname === item.href
@@ -95,13 +102,13 @@ export function Sidebar({ user }: SidebarProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
+                    "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-[#2a2a2a] text-[#ededed]"
-                      : "text-[#a0a0a0] hover:bg-[#242424] hover:text-[#ededed]"
+                      ? "bg-primary/10 text-primary"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-primary/5 hover:text-slate-900 dark:hover:text-slate-100"
                   )}
                 >
-                  <item.icon size={15} strokeWidth={1.8} />
+                  <item.icon size={18} strokeWidth={1.8} />
                   {item.label}
                 </Link>
               );
@@ -111,31 +118,33 @@ export function Sidebar({ user }: SidebarProps) {
       </nav>
 
       {/* User section */}
-      <div className="border-t border-[#2e2e2e] p-3 space-y-0.5">
+      <div className="border-t border-slate-200/70 dark:border-primary/10 pt-4 space-y-1">
         <Link
           href="/dashboard/settings"
           className={cn(
-            "flex items-center gap-2.5 px-3 py-2 rounded-md transition-colors group",
-            isSettingsActive ? "bg-[#2a2a2a]" : "hover:bg-[#242424]"
+            "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group",
+            isSettingsActive ? "bg-primary/10" : "hover:bg-slate-100 dark:hover:bg-primary/5"
           )}
         >
-          <div className="w-6 h-6 rounded-full bg-brand/20 flex items-center justify-center shrink-0">
-            <span className="text-[10px] font-semibold text-brand">
+          <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+            <span className="text-[10px] font-semibold text-primary">
               {getInitials(user.name)}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className={cn("text-xs font-medium truncate", isSettingsActive ? "text-[#ededed]" : "text-[#ededed]")}>
+            <p className="text-xs font-medium truncate text-slate-900 dark:text-slate-100">
               {user.name}
             </p>
-            <p className="text-[11px] text-[#666] truncate">{user.email}</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+              {user.email}
+            </p>
           </div>
         </Link>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-[#a0a0a0] hover:bg-[#242424] hover:text-[#ededed] transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-primary/5 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
         >
-          <LogOut size={15} strokeWidth={1.8} />
+          <LogOut size={18} strokeWidth={1.8} />
           Sign out
         </button>
       </div>

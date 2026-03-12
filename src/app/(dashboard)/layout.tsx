@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { COOKIE_NAME, verifyToken } from "@/lib/auth/jwt";
 import { getUserById } from "@/services/auth.service";
 import { Sidebar } from "@/components/layout/sidebar";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
 
 export default async function DashboardLayout({
   children,
@@ -28,9 +29,10 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-[#171717] overflow-hidden">
+    <div className="flex h-screen bg-background-light dark:bg-background-dark overflow-hidden">
       <Sidebar user={user} />
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <DashboardHeader />
         {children}
       </div>
     </div>

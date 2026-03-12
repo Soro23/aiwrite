@@ -60,23 +60,29 @@ export default function RegisterPage() {
     return (
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2 mb-8 justify-center">
-          <div className="w-8 h-8 bg-brand rounded-md flex items-center justify-center">
-            <span className="text-sm font-bold text-black">A</span>
+          <div className="bg-primary/20 p-2 rounded-lg">
+            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-background-dark">
+              <span className="text-sm font-bold">A</span>
+            </div>
           </div>
-          <span className="text-lg font-semibold text-[#ededed]">aiwrite</span>
+          <span className="text-lg font-semibold text-slate-900 dark:text-white">
+            aiwrite
+          </span>
         </div>
 
-        <div className="bg-[#1c1c1c] border border-[#2e2e2e] rounded-lg p-8 text-center">
+        <div className="bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/10 rounded-xl p-8 text-center">
           <div className="flex justify-center mb-4">
-            <CheckCircle2 size={40} className="text-brand" strokeWidth={1.5} />
+            <CheckCircle2 size={40} className="text-primary" strokeWidth={1.5} />
           </div>
-          <h1 className="text-lg font-semibold text-[#ededed] mb-2">Account submitted</h1>
-          <p className="text-sm text-[#a0a0a0]">
+          <h1 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+            Account submitted
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Your account request has been received. You can log in once an admin approves it.
           </p>
           <Link
             href="/login"
-            className="mt-6 inline-block text-sm text-brand hover:underline"
+            className="mt-6 inline-block text-sm text-primary hover:underline"
           >
             Back to sign in
           </Link>
@@ -89,50 +95,64 @@ export default function RegisterPage() {
     <div className="w-full max-w-sm">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8 justify-center">
-        <div className="w-8 h-8 bg-brand rounded-md flex items-center justify-center">
-          <span className="text-sm font-bold text-black">A</span>
+        <div className="bg-primary/20 p-2 rounded-lg">
+          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-background-dark">
+            <span className="text-sm font-bold">A</span>
+          </div>
         </div>
-        <span className="text-lg font-semibold text-[#ededed]">aiwrite</span>
+        <span className="text-lg font-semibold text-slate-900 dark:text-white">
+          aiwrite
+        </span>
       </div>
 
       {/* Card */}
-      <div className="bg-[#1c1c1c] border border-[#2e2e2e] rounded-lg p-8">
-        <h1 className="text-xl font-semibold text-[#ededed] mb-1">Create an account</h1>
-        <p className="text-sm text-[#a0a0a0] mb-6">Request access to aiwrite</p>
+      <div className="bg-white dark:bg-primary/5 border border-slate-200 dark:border-primary/10 rounded-xl p-8">
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-white mb-1">
+          Create an account
+        </h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+          Request access to aiwrite
+        </p>
 
         {error && (
-          <div className="mb-4 px-3 py-2.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div className="mb-4 px-3 py-2.5 rounded-md bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-[#a0a0a0] mb-1.5">Name</label>
+            <label className="block text-sm text-slate-600 dark:text-slate-400 mb-1.5">
+              Name
+            </label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="John Doe"
-              className="w-full px-3 py-2 bg-[#222] border border-[#2e2e2e] rounded-md text-sm text-[#ededed] placeholder-[#555] focus:outline-none focus:border-brand transition-colors"
+              className="w-full px-3 py-2 bg-slate-100 dark:bg-primary/5 border border-transparent rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-[#a0a0a0] mb-1.5">Email</label>
+            <label className="block text-sm text-slate-600 dark:text-slate-400 mb-1.5">
+              Email
+            </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-3 py-2 bg-[#222] border border-[#2e2e2e] rounded-md text-sm text-[#ededed] placeholder-[#555] focus:outline-none focus:border-brand transition-colors"
+              className="w-full px-3 py-2 bg-slate-100 dark:bg-primary/5 border border-transparent rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-[#a0a0a0] mb-1.5">Password</label>
+            <label className="block text-sm text-slate-600 dark:text-slate-400 mb-1.5">
+              Password
+            </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -141,12 +161,12 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 pr-9 bg-[#222] border border-[#2e2e2e] rounded-md text-sm text-[#ededed] placeholder-[#555] focus:outline-none focus:border-brand transition-colors"
+                className="w-full px-3 py-2 pr-9 bg-slate-100 dark:bg-primary/5 border border-transparent rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555] hover:text-[#a0a0a0] transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -155,7 +175,9 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm text-[#a0a0a0] mb-1.5">Confirm password</label>
+            <label className="block text-sm text-slate-600 dark:text-slate-400 mb-1.5">
+              Confirm password
+            </label>
             <div className="relative">
               <input
                 type={showConfirm ? "text" : "password"}
@@ -164,39 +186,41 @@ export default function RegisterPage() {
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full px-3 py-2 pr-9 bg-[#222] border rounded-md text-sm text-[#ededed] placeholder-[#555] focus:outline-none transition-colors ${
+                className={`w-full px-3 py-2 pr-9 bg-slate-100 dark:bg-primary/5 border rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-colors ${
                   confirm && confirm !== password
-                    ? "border-red-500/60 focus:border-red-500"
-                    : "border-[#2e2e2e] focus:border-brand"
+                    ? "border-red-500/60 focus:ring-1 focus:ring-red-500"
+                    : "border-transparent focus:ring-1 focus:ring-primary"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm((v) => !v)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555] hover:text-[#a0a0a0] transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                 tabIndex={-1}
               >
                 {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
             {confirm && confirm !== password && (
-              <p className="mt-1 text-xs text-red-400">Passwords do not match</p>
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                Passwords do not match
+              </p>
             )}
           </div>
 
           <button
             type="submit"
             disabled={loading || (!!confirm && confirm !== password)}
-            className="w-full py-2 px-4 bg-brand hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed text-black font-medium text-sm rounded-md transition-colors"
+            className="w-full py-2 px-4 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-background-dark font-semibold text-sm rounded-lg transition-colors"
           >
             {loading ? "Sending request..." : "Request access"}
           </button>
         </form>
       </div>
 
-      <p className="text-center text-sm text-[#a0a0a0] mt-4">
+      <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-4">
         Already have an account?{" "}
-        <Link href="/login" className="text-brand hover:underline">
+        <Link href="/login" className="text-primary hover:underline">
           Sign in
         </Link>
       </p>
