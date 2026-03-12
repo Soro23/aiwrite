@@ -160,14 +160,13 @@ export async function listTables(
     Array<{ table_name: string; row_estimate: bigint }>
   >(
     `SELECT t.table_name,
-            COALESCE(c.reltuples::bigint, 0) AS row_estimate
+            COALESCE(s.n_live_tup, 0)::bigint AS row_estimate
      FROM information_schema.tables t
-     LEFT JOIN pg_class c
-       ON c.relname = t.table_name
-     LEFT JOIN pg_namespace n
-       ON n.oid = c.relnamespace AND n.nspname = t.table_schema
+     LEFT JOIN pg_stat_user_tables s
+       ON s.schemaname = t.table_schema
+      AND s.relname    = t.table_name
      WHERE t.table_schema = $1
-       AND t.table_type = 'BASE TABLE'
+       AND t.table_type   = 'BASE TABLE'
      ORDER BY t.table_name`,
     db.schemaName
   );

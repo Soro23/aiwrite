@@ -1,14 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Table2, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-interface TableInfo {
-  name: string;
-  rowCountEstimate: number;
-}
+import { DatabaseTablesSidebar } from "@/components/database/DatabaseTablesSidebar";
 
 interface ColumnInfo {
   name: string;
@@ -28,24 +23,11 @@ interface TableData {
 
 export default function TableEditorPage() {
   const params = useParams<{ id: string }>();
-  const [tables, setTables] = useState<TableInfo[]>([]);
-  const [tablesLoading, setTablesLoading] = useState(true);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [dataLoading, setDataLoading] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 50;
-
-  async function loadTables() {
-    setTablesLoading(true);
-    try {
-      const res = await fetch(`/api/databases/${params.id}/tables`);
-      const data = await res.json();
-      if (data.success) setTables(data.data);
-    } finally {
-      setTablesLoading(false);
-    }
-  }
 
   async function loadTableData(table: string, p = 1) {
     setDataLoading(true);
@@ -63,8 +45,6 @@ export default function TableEditorPage() {
     }
   }
 
-  useEffect(() => { loadTables(); }, [params.id]);
-
   function selectTable(name: string) {
     setSelectedTable(name);
     setTableData(null);
@@ -76,43 +56,11 @@ export default function TableEditorPage() {
 
   return (
     <div className="flex-1 flex overflow-hidden">
-      {/* Table list sidebar */}
-      <div className="w-56 border-r border-[#2e2e2e] flex flex-col shrink-0">
-        <div className="px-3 py-2.5 border-b border-[#2e2e2e] flex items-center justify-between">
-          <span className="text-xs text-[#666] font-medium uppercase tracking-wide">Tables</span>
-          <button
-            onClick={loadTables}
-            className="p-1 text-[#666] hover:text-[#a0a0a0] transition-colors"
-          >
-            <RefreshCw size={12} className={tablesLoading ? "animate-spin" : ""} />
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto py-1">
-          {tablesLoading ? (
-            <div className="px-3 py-2 text-xs text-[#555]">Loading...</div>
-          ) : tables.length === 0 ? (
-            <div className="px-3 py-3 text-xs text-[#555]">
-              No tables yet. Use the SQL Editor to create tables.
-            </div>
-          ) : (
-            tables.map((t) => (
-              <button
-                key={t.name}
-                onClick={() => selectTable(t.name)}
-                className={cn(
-                  "w-full text-left flex items-center gap-2 px-3 py-2 text-xs transition-colors",
-                  selectedTable === t.name
-                    ? "bg-[#2a2a2a] text-[#ededed]"
-                    : "text-[#a0a0a0] hover:bg-[#242424] hover:text-[#ededed]"
-                )}
-              >
-                <Table2 size={12} className="shrink-0" />
-                <span className="truncate">{t.name}</span>
-              </button>
-            ))
-          )}
-        </div>
-      </div>
+      <DatabaseTablesSidebar
+        databaseId={params.id}
+        selectedTable={selectedTable ?? undefined}
+        onSelectTable={selectTable}
+      />
 
       {/* Table data */}
       <div className="flex-1 flex flex-col overflow-hidden">

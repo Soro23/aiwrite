@@ -5,7 +5,10 @@
       "Bash(find ./src/app/api/files -type f -name \"*.ts\" 2>/dev/null | head -20)",
       "Bash(cat ./src/app/api/files/\\\\[id\\\\]/route.ts)",
       "Bash(cat ./src/app/\\\\\\(dashboard\\\\\\)/dashboard/storage/page.tsx)",
-      "Bash(find \"/c/Users/aitol/Documents/Code/Claude Workspace/aiwrite\" -type f -path \"*dashboard*\" -path \"*database*\" 2>/dev/null | head -20)"
+      "Bash(find \"/c/Users/aitol/Documents/Code/Claude Workspace/aiwrite\" -type f -path \"*dashboard*\" -path \"*database*\" 2>/dev/null | head -20)",
+      "Bash(cd \"C:/Users/aitol/Documents/Code/Claude Workspace/aiwrite\" && npm run build 2>&1 | tail -40)",
+      "Bash(cd \"C:/Users/aitol/Documents/Code/Claude Workspace/aiwrite\" && npx tsc --noEmit 2>&1 | head -40)",
+      "Bash(cd \"C:/Users/aitol/Documents/Code/Claude Workspace/aiwrite\" && ./node_modules/.bin/tsc --noEmit 2>&1 | head -40)"
     ]
   }
 }
