@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Database, Plus, Trash2, ExternalLink } from "lucide-react";
+import { Database, Plus, Trash2, ExternalLink, Download } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { ImportDatabaseModal } from "@/components/database/ImportDatabaseModal";
 
 interface DatabaseRecord {
   id: string;
@@ -23,6 +24,7 @@ export default function DatabasePage() {
   const [confirmDelete, setConfirmDelete] = useState<DatabaseRecord | null>(null);
   const [confirmName, setConfirmName] = useState("");
   const [error, setError] = useState("");
+  const [showImport, setShowImport] = useState(false);
 
   async function loadDatabases() {
     setLoading(true);
@@ -93,13 +95,22 @@ export default function DatabasePage() {
             {loading ? "Loading..." : `${databases.length} database${databases.length !== 1 ? "s" : ""}`}
           </p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand hover:bg-brand-hover text-black font-medium rounded-md transition-colors"
-        >
-          <Plus size={13} />
-          New database
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowImport(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#242424] hover:bg-[#2e2e2e] text-[#a0a0a0] border border-[#2e2e2e] rounded-md transition-colors"
+          >
+            <Download size={13} />
+            Import
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-brand hover:bg-brand-hover text-black font-medium rounded-md transition-colors"
+          >
+            <Plus size={13} />
+            New database
+          </button>
+        </div>
       </div>
 
       <div className="p-6">
@@ -190,6 +201,14 @@ export default function DatabasePage() {
           </div>
         )}
       </div>
+
+      {/* Import modal */}
+      {showImport && (
+        <ImportDatabaseModal
+          onClose={() => setShowImport(false)}
+          onImported={() => { setShowImport(false); loadDatabases(); }}
+        />
+      )}
 
       {/* Delete confirmation modal */}
       {confirmDelete && (
