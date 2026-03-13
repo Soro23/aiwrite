@@ -142,7 +142,9 @@ async function importFromPostgres(
         const pgType = mapPgType(c.data_type, c.character_maximum_length);
         const nullable = c.is_nullable === "YES" ? "" : " NOT NULL";
         const skipDefault = c.column_default?.includes("nextval") ?? false;
-        const def = c.column_default && !skipDefault ? ` DEFAULT ${c.column_default}` : "";
+        // Strip ::typename casts (e.g. 'member'::board_role) — the enum type won't exist in our schema
+        const sanitizedDefault = c.column_default?.replace(/::[a-zA-Z_][a-zA-Z0-9_.]*(\[\])?/g, "") ?? null;
+        const def = sanitizedDefault && !skipDefault ? ` DEFAULT ${sanitizedDefault}` : "";
         const pk = withPk && pkCols.has(c.column_name) && !multiPk ? " PRIMARY KEY" : "";
         return `"${c.column_name}" ${pgType}${nullable}${def}${pk}`;
       };
