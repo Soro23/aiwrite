@@ -78,7 +78,7 @@ async function importFromPostgres(
       password: decodeURIComponent(url.password),
       ssl: connectionString.includes("sslmode=disable")
         ? false
-        : { rejectUnauthorized: false },
+        : { rejectUnauthorized: false, servername: url.hostname },
       connectionTimeoutMillis: 15_000,
       query_timeout: 60_000,
     };
