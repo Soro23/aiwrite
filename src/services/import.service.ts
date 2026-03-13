@@ -63,25 +63,37 @@ async function importFromPostgres(
   name: string,
   connectionString: string
 ): Promise<DatabaseRecord> {
-  // Resolve hostname to IPv4 to avoid ENETUNREACH on IPv6-only DNS results
-  let resolvedHost: string | undefined;
+  // Parse connection string and resolve hostname to IPv4 explicitly.
+  // Passing connectionString + host together does not override pg's internal
+  // hostname resolution, so we must build the config without connectionString.
+  let pgConfig: ConstructorParameters<typeof Client>[0];
   try {
     const url = new URL(connectionString.replace(/^postgres:\/\//, "postgresql://"));
     const { address } = await lookup(url.hostname, { family: 4 });
-    resolvedHost = address;
+    pgConfig = {
+      host: address,
+      port: url.port ? parseInt(url.port, 10) : 5432,
+      database: url.pathname.replace(/^\//, ""),
+      user: decodeURIComponent(url.username),
+      password: decodeURIComponent(url.password),
+      ssl: connectionString.includes("sslmode=disable")
+        ? false
+        : { rejectUnauthorized: false },
+      connectionTimeoutMillis: 15_000,
+      query_timeout: 60_000,
+    };
   } catch {
-    // If resolution fails, fall back to letting pg handle it
+    pgConfig = {
+      connectionString,
+      ssl: connectionString.includes("sslmode=disable")
+        ? false
+        : { rejectUnauthorized: false },
+      connectionTimeoutMillis: 15_000,
+      query_timeout: 60_000,
+    };
   }
 
-  const client = new Client({
-    connectionString,
-    ...(resolvedHost ? { host: resolvedHost } : {}),
-    ssl: connectionString.includes("sslmode=disable")
-      ? false
-      : { rejectUnauthorized: false },
-    connectionTimeoutMillis: 15_000,
-    query_timeout: 60_000,
-  });
+  const client = new Client(pgConfig);
 
   await client.connect().catch((err: unknown) => {
     const msg = err instanceof Error ? err.message : "Connection failed";
