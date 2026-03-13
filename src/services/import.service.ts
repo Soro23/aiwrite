@@ -229,8 +229,11 @@ async function importFromAppWrite(
     "Content-Type": "application/json",
   };
 
+  const awQuery = (method: string, ...values: unknown[]) =>
+    encodeURIComponent(JSON.stringify({ method, values }));
+
   const collectionsRes = await fetch(
-    `${base}/v1/databases/${appWriteDatabaseId}/collections?queries[]=limit(100)`,
+    `${base}/v1/databases/${appWriteDatabaseId}/collections?queries[]=${awQuery("limit", 100)}`,
     { headers }
   );
 
@@ -271,7 +274,7 @@ async function importFromAppWrite(
 
       while (offset < MAX_ROWS_PER_TABLE) {
         const docsRes = await fetch(
-          `${base}/v1/databases/${appWriteDatabaseId}/collections/${collection.$id}/documents?queries[]=limit(${pageSize})&queries[]=offset(${offset})`,
+          `${base}/v1/databases/${appWriteDatabaseId}/collections/${collection.$id}/documents?queries[]=${awQuery("limit", pageSize)}&queries[]=${awQuery("offset", offset)}`,
           { headers }
         );
         if (!docsRes.ok) break;
