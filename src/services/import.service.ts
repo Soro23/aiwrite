@@ -69,6 +69,7 @@ async function importFromPostgres(
       : { rejectUnauthorized: false },
     connectionTimeoutMillis: 15_000,
     query_timeout: 60_000,
+    family: 4,
   });
 
   await client.connect().catch((err: unknown) => {
