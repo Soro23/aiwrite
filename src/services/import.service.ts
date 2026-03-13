@@ -289,7 +289,13 @@ async function importFromAppWrite(
 
         for (const doc of docsData.documents) {
           const placeholders = allCols.map((col) => {
-            params.push(col === "_id" ? doc["$id"] : (doc[col] ?? null));
+            const raw = col === "_id" ? doc["$id"] : doc[col];
+            const val = raw == null
+              ? null
+              : typeof raw === "object"
+                ? JSON.stringify(raw)
+                : raw;
+            params.push(val);
             return `$${params.length}`;
           });
           valueSets.push(`(${placeholders.join(", ")})`);
