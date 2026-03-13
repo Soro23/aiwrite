@@ -1,5 +1,5 @@
 ##
-## docker-compose.yml — Production / integrated compose file.
+## docker-compose.yml — Production / integrated compose file. Updated 2026-03-13.
 ##
 ## Orchestrates ALL services: app, postgres, minio.
 ## For local development (app runs with `npm run dev`), use docker-compose.dev.yml instead.
