@@ -6,7 +6,7 @@ import { usePathname, useParams } from "next/navigation";
 import {
   ArrowLeft, Terminal, Table2, GitBranch,
   Code2, Zap, ListOrdered, SortAsc, ShieldCheck,
-  Puzzle, Rss, Users, SlidersHorizontal,
+  Puzzle, Rss, Users, SlidersHorizontal, Plug,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
@@ -36,9 +36,10 @@ export default function DatabaseDetailLayout({ children }: { children: React.Rea
   const navGroups: NavGroup[] = [
     {
       items: [
-        { href: "sql",    icon: Terminal,  label: "SQL Editor" },
-        { href: "tables", icon: Table2,    label: "Tables"     },
-        { href: "schema", icon: GitBranch, label: "Schema"     },
+        { href: "sql",        icon: Terminal,  label: "SQL Editor"  },
+        { href: "tables",     icon: Table2,    label: "Tables"      },
+        { href: "schema",     icon: GitBranch, label: "Schema"      },
+        { href: "connection", icon: Plug,      label: "Connection"  },
       ],
     },
     {
