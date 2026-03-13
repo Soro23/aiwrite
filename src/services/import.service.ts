@@ -155,6 +155,11 @@ async function importFromPostgres(
         colDefs.push(pkConstraint);
       }
 
+      // Map column name → mapped pg type for cast generation during INSERT
+      const colTypeMap = new Map(
+        colsResult.rows.map((c) => [c.column_name, mapPgType(c.data_type, c.character_maximum_length)])
+      );
+
       await prisma.$executeRawUnsafe(
         `CREATE TABLE IF NOT EXISTS "${db.schemaName}"."${tableName}" (${colDefs.join(", ")})`
       );
@@ -175,8 +180,16 @@ async function importFromPostgres(
 
           for (const row of batch) {
             const placeholders = columns.map((col) => {
-              params.push(row[col] ?? null);
-              return `$${params.length}`;
+              const val = row[col] ?? null;
+              params.push(val);
+              const pgType = colTypeMap.get(col);
+              // Explicit cast needed for types PostgreSQL won't auto-coerce from text
+              const cast = pgType === "UUID" ? "::uuid"
+                : pgType === "BYTEA" ? "::bytea"
+                : pgType === "JSONB" ? "::jsonb"
+                : pgType === "JSON" ? "::json"
+                : "";
+              return `$${params.length}${cast}`;
             });
             valueSets.push(`(${placeholders.join(", ")})`);
           }
