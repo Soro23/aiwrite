@@ -222,7 +222,7 @@ async function importFromAppWrite(
   apiKey: string,
   appWriteDatabaseId: string
 ): Promise<DatabaseRecord> {
-  const base = endpoint.replace(/\/$/, "");
+  const base = endpoint.replace(/\/$/, "").replace(/\/v1$/, "");
   const headers = {
     "X-Appwrite-Project": projectId,
     "X-Appwrite-Key": apiKey,

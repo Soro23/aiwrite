@@ -207,7 +207,7 @@ export function ImportDatabaseModal({ onClose, onImported }: Props) {
                     <input
                       value={endpoint}
                       onChange={(e) => setEndpoint(e.target.value)}
-                      placeholder="https://cloud.appwrite.io/v1"
+                      placeholder="https://cloud.appwrite.io"
                       required
                       className="w-full px-3 py-2 bg-[#222] border border-[#2e2e2e] rounded-md text-sm text-[#ededed] placeholder-[#555] focus:outline-none focus:border-brand transition-colors font-mono"
                     />
