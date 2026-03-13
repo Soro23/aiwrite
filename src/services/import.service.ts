@@ -1,4 +1,5 @@
 import { Client } from "pg";
+import { lookup } from "dns/promises";
 import { prisma } from "@/lib/db/prisma";
 import { createDatabase } from "./database.service";
 import { ServiceError } from "@/lib/errors";
@@ -62,14 +63,24 @@ async function importFromPostgres(
   name: string,
   connectionString: string
 ): Promise<DatabaseRecord> {
+  // Resolve hostname to IPv4 to avoid ENETUNREACH on IPv6-only DNS results
+  let resolvedHost: string | undefined;
+  try {
+    const url = new URL(connectionString.replace(/^postgres:\/\//, "postgresql://"));
+    const { address } = await lookup(url.hostname, { family: 4 });
+    resolvedHost = address;
+  } catch {
+    // If resolution fails, fall back to letting pg handle it
+  }
+
   const client = new Client({
     connectionString,
+    ...(resolvedHost ? { host: resolvedHost } : {}),
     ssl: connectionString.includes("sslmode=disable")
       ? false
       : { rejectUnauthorized: false },
     connectionTimeoutMillis: 15_000,
     query_timeout: 60_000,
-    family: 4,
   });
 
   await client.connect().catch((err: unknown) => {
