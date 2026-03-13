@@ -33,3 +33,6 @@ Thumbs.db
 
 # prisma
 prisma/migrations/**/migration_lock.toml
+
+# SSL certificates — generated on the server, never committed
+docker/postgres/ssl/

@@ -18,7 +18,10 @@ services:
   # PostgreSQL 16
   # ─────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    build:
+      context: ./docker/postgres
+      dockerfile: Dockerfile
+    image: aiwrite_postgres
     container_name: aiwrite_postgres
     restart: unless-stopped
     environment:
@@ -28,9 +31,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    # NOTE: Postgres port is NOT exposed to the host in production.
-    # The app service reaches it via the internal network using the service name.
-    # To expose it temporarily for debugging: docker compose exec postgres psql ...
+    command: >
+      postgres
+      -c ssl=on
+      -c ssl_cert_file=/etc/postgresql/ssl/server.crt
+      -c ssl_key_file=/etc/postgresql/ssl/server.key
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aiwrite} -d ${POSTGRES_DB:-aiwrite}"]
       interval: 10s
