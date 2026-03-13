@@ -184,7 +184,7 @@ export function ImportDatabaseModal({ onClose, onImported }: Props) {
                     onChange={(e) => setConnectionString(e.target.value)}
                     placeholder={
                       provider === "supabase"
-                        ? "postgresql://postgres:[password]@db.[ref].supabase.co:5432/postgres"
+                        ? "postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres"
                         : "postgresql://[user]:[password]@ep-[name].region.aws.neon.tech/[db]?sslmode=require"
                     }
                     required
@@ -193,7 +193,7 @@ export function ImportDatabaseModal({ onClose, onImported }: Props) {
                   />
                   <p className="text-[11px] text-[#555] mt-1">
                     {provider === "supabase"
-                      ? "Find it in Supabase → Project Settings → Database → Connection string (URI, port 5432)."
+                      ? "Use the Session Mode pooler URL: Supabase → Project Settings → Database → Connection pooling → Session mode → URI (port 5432)."
                       : "Find it in Neon → Project → Connection Details."}
                   </p>
                 </div>

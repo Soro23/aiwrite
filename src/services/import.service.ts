@@ -83,14 +83,11 @@ async function importFromPostgres(
       query_timeout: 60_000,
     };
   } catch {
-    pgConfig = {
-      connectionString,
-      ssl: connectionString.includes("sslmode=disable")
-        ? false
-        : { rejectUnauthorized: false },
-      connectionTimeoutMillis: 15_000,
-      query_timeout: 60_000,
-    };
+    throw new ServiceError(
+      "Could not resolve the host to an IPv4 address. " +
+      "For Supabase, use the Session Mode pooler URL: Project Settings → Database → Connection pooling → Session mode → URI (port 5432).",
+      400
+    );
   }
 
   const client = new Client(pgConfig);
