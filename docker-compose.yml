@@ -91,7 +91,7 @@ services:
     environment:
       NODE_ENV: production
       # Internal DATABASE_URL — uses service name "postgres", not localhost.
-      DATABASE_URL: postgresql://${POSTGRES_USER:-aiwrite}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-aiwrite}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aiwrite}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-aiwrite}?schema=app
       # Auth
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
